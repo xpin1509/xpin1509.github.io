@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><title>vue-nba-web</title><meta name=viewport content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><script type=text/javascript>(function(doc, win) {
+				var docEl = doc.documentElement,
+					resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+					recalc = function() {
+						var clientWidth = docEl.clientWidth > 540 ? 540 : docEl.clientWidth;
+						if(!clientWidth)
+							return;
+						docEl.style.fontSize = 100 * (clientWidth / 750) + 'px';
+						doc.body.style.display = "block";
+						doc.getElementsByTagName('html')[0].removeAttribute('class');
+					};
+				if(!doc.addEventListener)
+					return;
+				win.addEventListener(resizeEvt, recalc, false);
+				doc.addEventListener('DOMContentLoaded', recalc, false);
+			})(document, window);</script><link href=/static/css/app.490d87aeeadc8f8be6dffa26758d8232.css rel=stylesheet></head><body><div id=app></div><script type=text/javascript src=/static/js/manifest.412895941ebf339f9d7a.js></script><script type=text/javascript src=/static/js/vendor.54ecfb6e076a16b9871f.js></script><script type=text/javascript src=/static/js/app.deb90239d1f92fe7dd76.js></script></body></html>

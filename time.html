@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+
+<body>
+	<canvas id="canvas" style="border: 1px solid #999999; display: block; margin: auto;">
+			当前浏览器不支持canvas，请跟换浏览器后重试
+		</canvas>
+	<script src='js/canvas1.js'></script>
+	<script>
+		var window_width = 1024;
+		var window_height = 768;
+		var radius = 8;
+		var margin_top = 60;
+		var margin_left = 30;
+
+		//			const endtime=new Date();
+		//			endtime.setTime(endtime.getTime()+3600*1000);
+		var curshowseconds = 0;
+
+		var balls = [];
+		const colors = ["#FFA54F", "#FF1493", "#CAFF70", "#7FFF00", "#BDBDBD", "#87CEFF", "#4876FF", "#00EE00", "#FFFF00", "#FF8C69"];
+		window.onload = function() {
+			var canvas = document.getElementById("canvas");
+			var context = canvas.getContext("2d");
+			canvas.width = window_width;
+			canvas.height = window_height;
+
+			curshowseconds = getcurshowseconds();
+			setInterval(
+				function() {
+					render(context); //绘制
+					updata();
+				}, 50
+			);
+		}
+
+		function getcurshowseconds() {
+			var curtime = new Date();
+			var ret = curtime.getHours() * 3600 + curtime.getMinutes() * 60 + curtime.getSeconds();
+			return ret;
+		}
+
+		function updata() {
+			var nextshowseconds = getcurshowseconds();
+
+			var nexthours = parseInt(nextshowseconds / 3600);
+			var nextminutes = parseInt((nextshowseconds - nexthours * 3600) / 60);
+			var nextseconds = nextshowseconds % 60;
+
+			var curhours = parseInt(curshowseconds / 3600);
+			var curminutes = parseInt((curshowseconds - curhours * 3600) / 60);
+			var curseconds = curshowseconds % 60;
+
+			if(curseconds != nextseconds) {
+				if(parseInt(curhours / 10) != parseInt(nexthours / 10)) {
+					addBalls(margin_left + 0, margin_top, parseInt(curhours / 10));
+				}
+				if(parseInt(curhours % 10) != parseInt(nexthours % 10)) {
+					addBalls(margin_left + 15 * (radius + 1), margin_top, parseInt(curminutes % 10));
+				}
+				if(parseInt(curminutes / 10) != parseInt(nextminutes / 10)) {
+					addBalls(margin_left + 39 * (radius + 1), margin_top, parseInt(curminutes / 10));
+				}
+				if(parseInt(curminutes % 10) != parseInt(nextminutes % 10)) {
+					addBalls(margin_left + 54 * (radius + 1), margin_top, parseInt(curminutes % 10));
+				}
+				if(parseInt(curseconds / 10) != parseInt(nextseconds / 10)) {
+					addBalls(margin_left + 78 * (radius + 1), margin_top, parseInt(curseconds / 10));
+				}
+				if(parseInt(curseconds % 10) != parseInt(nextseconds % 10)) {
+					addBalls(margin_left + 93 * (radius + 1), margin_top, parseInt(nextseconds % 10));
+				}
+
+				curshowseconds = nextshowseconds;
+
+			}
+			updataBalls();
+
+		}
+
+		function updataBalls() {
+			for(var i = 0; i < balls.length; i++) {
+				balls[i].x += balls[i].vx;
+				balls[i].y += balls[i].vy;
+				balls[i].vy += balls[i].g;
+
+				if(balls[i].y >= window_height - radius) {
+					balls[i].y = window_height - radius;
+					balls[i].vy = -balls[i].vy * 0.75;
+				}
+			}
+			var cnt = 0;
+			for(var i = 0; i < balls.length; i++)
+				if(balls[i].x + radius > 0 && balls[i].x - radius < window_width) {
+					balls[cnt++] = balls[i];
+				}
+			while(balls.length > Math.min(300, cnt)) {
+				balls.pop();
+			}
+		}
+
+		function addBalls(x, y, num) {
+
+			for(var i = 0; i < digit[num].length; i++)
+				for(var j = 0; j < digit[num][i].length; j++)
+					if(digit[num][i][j] == 1) {
+						var aball = {
+							x: x + j * 2 * (radius + 1) + (radius + 1),
+							y: y + i * 2 * (radius + 1) + (radius + 1),
+							g: 1.5 + Math.random(),
+							vx: Math.pow(-1, Math.ceil(Math.random() * 1000)) * 4,
+							vy: -5,
+							colors: colors[Math.floor(Math.random() * colors.length)]
+						}
+						balls.push(aball);
+					}
+		}
+
+		function render(cxt) {
+			cxt.clearRect(0, 0, window_width, window_height);
+
+			var hours = parseInt(curshowseconds / 3600);
+			var minutes = parseInt((curshowseconds - hours * 3600) / 60);
+			var seconds = curshowseconds % 60;
+			renderDigit(margin_left, margin_top, parseInt(hours / 10), cxt);
+			renderDigit(margin_left + 15 * (radius + 1), margin_top, parseInt(hours % 10), cxt);
+			renderDigit(margin_left + 30 * (radius + 1), margin_top, 10, cxt);
+			renderDigit(margin_left + 39 * (radius + 1), margin_top, parseInt(minutes / 10), cxt);
+			renderDigit(margin_left + 54 * (radius + 1), margin_top, parseInt(minutes % 10), cxt);
+			renderDigit(margin_left + 69 * (radius + 1), margin_top, 10, cxt);
+			renderDigit(margin_left + 78 * (radius + 1), margin_top, parseInt(seconds / 10), cxt);
+			renderDigit(margin_left + 93 * (radius + 1), margin_top, parseInt(seconds % 10), cxt);
+
+			for(var i = 0; i < balls.length; i++) {
+				cxt.fillStyle = balls[i].colors;
+				cxt.beginPath();
+				cxt.arc(balls[i].x, balls[i].y, radius, 0, 2 * Math.PI, true);
+				cxt.closePath();
+				cxt.fill();
+			}
+		}
+
+		function renderDigit(x, y, num, cxt) {
+			cxt.fillStyle = "rgb(0,102,153)";
+			for(var i = 0; i < digit[num].length; i++)
+				for(var j = 0; j < digit[num][i].length; j++)
+					if(digit[num][i][j] == 1) {
+						cxt.beginPath();
+						cxt.arc(x + j * 2 * (radius + 1) + (radius + 1), y + i * 2 * (radius + 1) + (radius + 1), radius, 0, 2 * Math.PI);
+						cxt.closePath();
+						cxt.fill();
+					}
+		}
+	</script>
+</body>
+
+</html>
+
+</body>
+
+</html>
